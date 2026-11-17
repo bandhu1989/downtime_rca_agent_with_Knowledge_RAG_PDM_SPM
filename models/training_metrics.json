@@ -1,0 +1,22 @@
+{
+  "synthetic_only": true,
+  "train_runs": 180,
+  "test_runs": 60,
+  "test_samples": 4822,
+  "positive_rate": 0.103,
+  "precision_at_0_5": 0.845,
+  "recall_at_0_5": 0.893,
+  "average_precision": 0.949,
+  "rul_mae_ticks": 11.16,
+  "horizon_ticks": 12,
+  "feature_names": [
+    "deviation",
+    "slope",
+    "volatility",
+    "alarm_density",
+    "age_fraction",
+    "mean_deviation",
+    "downtime_count"
+  ],
+  "limitations": "Simulator labels; model has no validated asset failure probability, physical RUL or lead-time guarantee."
+}

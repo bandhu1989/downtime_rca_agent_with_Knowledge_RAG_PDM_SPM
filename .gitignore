@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+data/*.csv
+data/*.db
+data/maintenance_demo.db*
+data/maintenance_chroma/
