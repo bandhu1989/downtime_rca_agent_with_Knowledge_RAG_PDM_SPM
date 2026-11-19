@@ -6,14 +6,15 @@ import plotly.express as px
 import subprocess
 import sys
 import threading
+from datetime import datetime
 from dotenv import load_dotenv
 from generate_data import make_data
 from rca_engine import list_events, get_event_evidence, rank_hypotheses, similar_events
 
 load_dotenv()
-st.set_page_config(page_title='Downtime Investigator | Root Cause | Maintenance Intelligence', page_icon='🏭', layout='wide')
+st.set_page_config(page_title='Downtime Investigator | Root Cause Analysis | Maintenance Intelligence', page_icon='🏭', layout='wide')
 st.title('🏭 Downtime Investigator | Root Cause | Maintenance Intelligence')
-st.caption('Synthetic plant data · Downtime RCA · AI knowledge assistant · Predictive maintenance · ML/RUL')
+st.caption('Synthetic plant data · Downtime RCA · AI knowledge assistant · ML Based Predictive maintenance · Remaining Useful Life Detection · Warranty & Spare Parts Management')
 
 # Ensure database exists BEFORE starting the stream simulator
 if not os.path.exists('data/plant.db'):
@@ -50,6 +51,17 @@ downtime_tab, chat_tab, maintenance_tab, ml_tab = st.tabs([
     '🧠 ML Predictive Maintenance & RUL',
 ])
 
+
+@st.fragment(run_every="10s")
+def _refresh_downtime_data():
+    """Refresh downtime data without generating new ticks."""
+    live_events = pd.DataFrame(list_events(100))
+    latest_event = live_events[0]['event_id'] if not live_events.empty else "None"
+    st.caption(
+        f"🟢 **Live Stream Active** | Last UI Refresh: `{datetime.now().strftime('%H:%M:%S')}` "
+        f"| Total Events: `{len(live_events)}` | Latest Event: `{latest_event}`"
+    )
+    
 with downtime_tab:
     st.subheader('Downtime Investigation')
     selected = st.selectbox('Select Downtime Event', event_ids, key='selected_downtime_event',

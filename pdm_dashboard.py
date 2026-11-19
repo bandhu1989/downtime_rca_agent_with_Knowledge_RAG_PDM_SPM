@@ -5,10 +5,12 @@ import streamlit as st
 import plotly.express as px
 from pdm_ml import MODEL_DIR,score_latest,snapshot,train,schema
 from maintenance_engine import dashboard
+from maintenance_ui import show_live_status
 
 @st.fragment(run_every="10s")
 def _refresh_ml_data():
     """Refresh predictions, trends and notifications."""
+    show_live_status()
 
     metrics = MODEL_DIR / "training_metrics.json"
 

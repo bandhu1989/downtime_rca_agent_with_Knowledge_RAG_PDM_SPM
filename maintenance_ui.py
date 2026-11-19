@@ -2,13 +2,53 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+from datetime import datetime, timezone
 from maintenance_engine import (init_db,simulate_tick,run_scheduler,set_scenario,dashboard,
-                                start_work_order,close_work_order,receive_stock,acknowledge_alert)
+                                start_work_order,close_work_order,receive_stock,acknowledge_alert,connect)
+
+def show_live_status():
+    with connect() as c:
+        row = c.execute("""
+            SELECT
+                COUNT(*) AS total_readings,
+                MAX(id) AS latest_id
+            FROM readings
+        """).fetchone()
+
+        latest = c.execute("""
+            SELECT asset_id, ts
+            FROM readings
+            ORDER BY id DESC
+            LIMIT 1
+        """).fetchone()
+
+    total = row["total_readings"]
+
+    ui_time = datetime.now().strftime("%H:%M:%S")
+
+    if latest:
+        latest_asset = latest["asset_id"]
+        latest_tick = latest["ts"]
+
+        st.caption(
+            f"🟢 **Dashboard Auto-Refresh Active** "
+            f"| Last UI Refresh: `{ui_time}` "
+            f"| Last Data Tick: `{latest_tick}` "
+            f"| Total Readings: `{total}` "
+            f"| Latest Asset: `{latest_asset}`"
+        )
+    else:
+        st.caption(
+            f"🟡 **Dashboard Auto-Refresh Active** "
+            f"| Last UI Refresh: `{ui_time}` "
+            f"| No simulator readings available"
+        )
 
 @st.fragment(run_every="10s")
 def _refresh_maintenance_data():
     """Refresh maintenance data without generating new ticks."""
-
+    show_live_status()
+    
     data = dashboard()
 
     orders = data["work_orders"]
