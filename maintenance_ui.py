@@ -5,6 +5,15 @@ import plotly.express as px
 from maintenance_engine import (init_db,simulate_tick,run_scheduler,set_scenario,dashboard,
                                 start_work_order,close_work_order,receive_stock,acknowledge_alert)
 
+@st.fragment(run_every="10s")
+def _refresh_maintenance_data():
+    """Refresh maintenance data without generating new ticks."""
+
+    data = dashboard()
+
+    orders = data["work_orders"]
+    alerts = data["alerts"]
+
 def render():
     st.header('🛠️ Predictive & Preventive Maintenance Command Center')
     st.caption('Synthetic simulation • Local SQLite only • Work orders/alerts are not transmitted to external teams or CMMS')

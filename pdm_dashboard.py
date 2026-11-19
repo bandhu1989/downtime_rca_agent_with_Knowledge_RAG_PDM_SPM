@@ -6,6 +6,12 @@ import plotly.express as px
 from pdm_ml import MODEL_DIR,score_latest,snapshot,train,schema
 from maintenance_engine import dashboard
 
+@st.fragment(run_every="10s")
+def _refresh_ml_data():
+    """Refresh predictions, trends and notifications."""
+
+    metrics = MODEL_DIR / "training_metrics.json"
+
 def render():
     st.header('🧠 ML Predictive Maintenance & RUL')
     st.warning('Training, failure labels and sensor readings are synthetic. Predictions are not validated for live equipment or real failure lead time.')

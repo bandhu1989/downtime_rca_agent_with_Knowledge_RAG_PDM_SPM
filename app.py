@@ -3,22 +3,44 @@ import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import subprocess
+import sys
+import threading
 from dotenv import load_dotenv
 from generate_data import make_data
 from rca_engine import list_events, get_event_evidence, rank_hypotheses, similar_events
 
 load_dotenv()
-st.set_page_config(page_title='Downtime Investigator | Root Cause & Maintenance Intelligence', page_icon='🏭', layout='wide')
-st.title('🏭 Downtime Investigator | Root Cause & Maintenance Intelligence')
+st.set_page_config(page_title='Downtime Investigator | Root Cause | Maintenance Intelligence', page_icon='🏭', layout='wide')
+st.title('🏭 Downtime Investigator | Root Cause | Maintenance Intelligence')
 st.caption('Synthetic plant data · Downtime RCA · AI knowledge assistant · Predictive maintenance · ML/RUL')
 
+# Ensure database exists BEFORE starting the stream simulator
 if not os.path.exists('data/plant.db'):
     make_data()
+
+# Load initial event IDs 
 events = pd.DataFrame(list_events(100))
 if events.empty:
     st.error('No downtime events found. Run `python generate_data.py` and reload.')
     st.stop()
 event_ids = events['event_id'].tolist()
+
+# Start pdm_stream.py once in the background
+@st.cache_resource
+def start_simulation():
+    def run_script():
+        subprocess.run([
+            sys.executable, "pdm_stream.py", 
+            "--interval", "3", 
+            "--ticks", "1000"
+        ])
+    
+    thread = threading.Thread(target=run_script, daemon=True)
+    thread.start()
+    return thread
+
+start_simulation() 
 
 # Streamlit tabs open the first tab by default. All four pages remain independently accessible.
 downtime_tab, chat_tab, maintenance_tab, ml_tab = st.tabs([
